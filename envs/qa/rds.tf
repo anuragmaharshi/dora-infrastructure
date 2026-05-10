@@ -1,6 +1,6 @@
 resource "aws_db_subnet_group" "main" {
   name        = "dora-qa-db-subnet-group"
-  description = "Subnet group for dora-qa RDS — uses both public subnets. RDS is not publicly accessible; ECS tasks reach it via security group rule."
+  description = "Subnet group for dora-qa RDS - uses both public subnets. RDS is not publicly accessible; ECS tasks reach it via security group rule."
   subnet_ids  = [aws_subnet.public_a.id, aws_subnet.public_b.id]
 
   tags = {
