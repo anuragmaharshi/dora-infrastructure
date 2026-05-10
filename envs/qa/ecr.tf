@@ -1,6 +1,7 @@
 resource "aws_ecr_repository" "dora_api" {
   name                 = "dora-api"
   image_tag_mutability = "MUTABLE"
+  force_delete         = true
 
   image_scanning_configuration {
     scan_on_push = true
@@ -16,6 +17,7 @@ resource "aws_ecr_repository" "dora_api" {
 resource "aws_ecr_repository" "dora_frontend" {
   name                 = "dora-frontend"
   image_tag_mutability = "MUTABLE"
+  force_delete         = true
 
   image_scanning_configuration {
     scan_on_push = true
