@@ -1,5 +1,21 @@
+resource "aws_service_discovery_private_dns_namespace" "main" {
+  name        = "dora-qa.local"
+  description = "Service Connect namespace for dora-qa"
+  vpc         = aws_vpc.main.id
+
+  tags = {
+    Name        = "dora-qa-namespace"
+    Environment = "qa"
+    Project     = "dora"
+  }
+}
+
 resource "aws_ecs_cluster" "main" {
   name = "dora-qa"
+
+  service_connect_defaults {
+    namespace = aws_service_discovery_private_dns_namespace.main.arn
+  }
 
   tags = {
     Name        = "dora-qa"
@@ -52,6 +68,18 @@ resource "aws_ecs_task_definition" "api" {
         {
           name  = "AWS_REGION"
           value = "us-east-1"
+        },
+        {
+          name  = "SPRING_MAIL_HOST"
+          value = "dora-mailhog"
+        },
+        {
+          name  = "SPRING_MAIL_PORT"
+          value = "1025"
+        },
+        {
+          name  = "MANAGEMENT_HEALTH_MAIL_ENABLED"
+          value = "false"
         }
         # S3_ENDPOINT intentionally unset — SDK uses real AWS S3
         # MINIO_PUBLIC_URL intentionally unset
@@ -117,7 +145,7 @@ resource "aws_ecs_task_definition" "frontend" {
 
       portMappings = [
         {
-          containerPort = 80
+          containerPort = 8080
           protocol      = "tcp"
         }
       ]
@@ -132,7 +160,7 @@ resource "aws_ecs_task_definition" "frontend" {
       }
 
       healthCheck = {
-        command     = ["CMD-SHELL", "wget -q -O /dev/null http://localhost:80/ || exit 1"]
+        command     = ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8080/ || exit 1"]
         interval    = 30
         timeout     = 10
         retries     = 3
@@ -168,6 +196,7 @@ resource "aws_ecs_task_definition" "mailhog" {
         {
           containerPort = 1025
           protocol      = "tcp"
+          name          = "smtp"
         },
         {
           containerPort = 8025
@@ -255,6 +284,11 @@ resource "aws_ecs_service" "api" {
     container_port   = 8080
   }
 
+  service_connect_configuration {
+    enabled   = true
+    namespace = aws_service_discovery_private_dns_namespace.main.arn
+  }
+
   depends_on = [
     aws_lb_listener.http,
     aws_db_instance.postgres,
@@ -284,7 +318,7 @@ resource "aws_ecs_service" "frontend" {
   load_balancer {
     target_group_arn = aws_lb_target_group.frontend.arn
     container_name   = "dora-frontend"
-    container_port   = 80
+    container_port   = 8080
   }
 
   depends_on = [
@@ -316,6 +350,21 @@ resource "aws_ecs_service" "mailhog" {
     target_group_arn = aws_lb_target_group.mailhog.arn
     container_name   = "dora-mailhog"
     container_port   = 8025
+  }
+
+  service_connect_configuration {
+    enabled   = true
+    namespace = aws_service_discovery_private_dns_namespace.main.arn
+
+    service {
+      port_name      = "smtp"
+      discovery_name = "dora-mailhog"
+
+      client_alias {
+        dns_name = "dora-mailhog"
+        port     = 1025
+      }
+    }
   }
 
   depends_on = [
