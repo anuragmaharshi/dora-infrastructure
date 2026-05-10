@@ -50,10 +50,6 @@ resource "aws_ecs_task_definition" "api" {
 
       environment = [
         {
-          name  = "SERVER_SERVLET_CONTEXT_PATH"
-          value = "/api"
-        },
-        {
           name  = "SPRING_PROFILES_ACTIVE"
           value = "qa"
         },
@@ -111,7 +107,7 @@ resource "aws_ecs_task_definition" "api" {
       }
 
       healthCheck = {
-        command     = ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8080/api/actuator/health || exit 1"]
+        command     = ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8080/actuator/health || exit 1"]
         interval    = 30
         timeout     = 10
         retries     = 3
