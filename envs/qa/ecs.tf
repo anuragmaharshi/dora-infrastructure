@@ -41,17 +41,35 @@ resource "aws_ecs_task_definition" "api" {
           name  = "SPRING_PROFILES_ACTIVE"
           value = "qa"
         },
-        # S3_ENDPOINT and MINIO_PUBLIC_URL intentionally unset — SDK uses real AWS S3
+        {
+          name  = "DB_URL"
+          value = "jdbc:postgresql://${aws_db_instance.postgres.address}:5432/dora"
+        },
+        {
+          name  = "S3_BUCKET"
+          value = aws_s3_bucket.attachments.bucket
+        },
+        {
+          name  = "AWS_REGION"
+          value = "us-east-1"
+        }
+        # S3_ENDPOINT intentionally unset — SDK uses real AWS S3
+        # MINIO_PUBLIC_URL intentionally unset
+        # AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY not set — ECS task role provides creds
       ]
 
       secrets = [
         {
-          name      = "DB_SECRET"
-          valueFrom = aws_secretsmanager_secret.db.arn
+          name      = "DB_PASSWORD"
+          valueFrom = "${aws_secretsmanager_secret.db.arn}:password::"
         },
         {
-          name      = "JWT_SECRET_JSON"
-          valueFrom = aws_secretsmanager_secret.jwt.arn
+          name      = "DB_USER"
+          valueFrom = "${aws_secretsmanager_secret.db.arn}:username::"
+        },
+        {
+          name      = "DEV_JWT_SECRET"
+          valueFrom = "${aws_secretsmanager_secret.jwt.arn}:secret::"
         }
       ]
 
