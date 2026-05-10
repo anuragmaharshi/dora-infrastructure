@@ -1,6 +1,7 @@
 resource "aws_secretsmanager_secret" "db" {
-  name        = "dora/qa/db"
-  description = "PostgreSQL credentials for dora-qa RDS instance. Rotate by updating terraform.tfvars and re-applying."
+  name                    = "dora/qa/db"
+  description             = "PostgreSQL credentials for dora-qa RDS instance. Rotate by updating terraform.tfvars and re-applying."
+  recovery_window_in_days = 0
 
   tags = {
     Name        = "dora-qa-db-secret"
@@ -18,8 +19,9 @@ resource "aws_secretsmanager_secret_version" "db" {
 }
 
 resource "aws_secretsmanager_secret" "jwt" {
-  name        = "dora/qa/jwt"
-  description = "JWT signing secret used by DevJwtService. Rotate by updating terraform.tfvars and re-applying."
+  name                    = "dora/qa/jwt"
+  description             = "JWT signing secret used by DevJwtService. Rotate by updating terraform.tfvars and re-applying."
+  recovery_window_in_days = 0
 
   tags = {
     Name        = "dora-qa-jwt-secret"
