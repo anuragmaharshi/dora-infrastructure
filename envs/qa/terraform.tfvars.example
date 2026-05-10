@@ -1,0 +1,21 @@
+# terraform.tfvars.example
+#
+# Copy this file to terraform.tfvars and fill in real values.
+# terraform.tfvars is gitignored — never commit it.
+#
+# Usage:
+#   cp terraform.tfvars.example terraform.tfvars
+#   # Edit terraform.tfvars with your values
+#   bash scripts/deploy-qa.sh
+
+# AWS account ID (12-digit number, no hyphens)
+# Find it: aws sts get-caller-identity --query Account --output text
+aws_account_id = "123456789012"
+
+# RDS PostgreSQL password for the 'dora' user.
+# Requirements: min 16 chars, alphanumeric + punctuation (avoid @ % / " \)
+db_password = "CHANGE_ME_min16chars_alphanumeric"
+
+# JWT signing secret used by DevJwtService.
+# Requirements: min 32 chars, any printable chars
+jwt_secret = "CHANGE_ME_min32chars_this_must_be_long_enough_for_HS256"

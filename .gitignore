@@ -1,5 +1,29 @@
-.terraform/
+# Terraform state — never commit
+terraform.tfstate
+terraform.tfstate.backup
 *.tfstate
-*.tfstate.backup
+*.tfstate.*
+
+# Terraform local vars (contains secrets)
+terraform.tfvars
+
+# Terraform working directory
+.terraform/
 .terraform.lock.hcl
+
+# Crash log
+crash.log
+crash.*.log
+
+# Override files (local overrides only)
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# CLI config
+.terraformrc
+terraform.rc
+
+# Local env
 .env
